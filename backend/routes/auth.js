@@ -26,7 +26,7 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
         const newUser = await pool.query(
-            'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING name, email',
+            'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING name, email, password',
             [name, email, password]
         );
         console.log("🚀 ~ newUser:", newUser)
@@ -57,8 +57,8 @@ router.post('/login', async (req, res) => {
         const token = generateToken(userData);
         return res.status(200).json({
             user: {
-                name: userData.name,
-                email: userData.email
+                email: userData.email,
+                password : userData.password
             },
             token
         });
@@ -145,4 +145,16 @@ router.delete('/deleteWatchData/:id', authenticateToken, async (req, res) => {
         return res.status(500).json({ error: err.message });
     }
 })
+
+router.get("/profile", authenticateToken, (req, res) => {
+    res.json({
+        message: "Profile accessed",
+        user: req.user,
+        userId: req.user.userId,
+    });
+});
+
+
+
+
 export default router;
